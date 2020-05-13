@@ -5,6 +5,8 @@ import Logo from './Components/Logo/Logo';
 import ImageLinkForm from './Components/ImageLinkForm/ImageLinkForm';
 import Rank from './Components/Rank/Rank'
 import FaceRecognition from './Components/FaceRecognition/FaceRecognition';
+import SignIn from './Components/SignIn/SignIn';
+import Register from './Components/Register/Register';
 import Particles from 'react-particles-js';
 
 import './App.css';
@@ -16,7 +18,7 @@ const app = new Clarifai.App({ 					// This is telling the server that I am able
 const particleOptions = { // This is the particle effects on the background, It is fully customisable, link saved in dev space! Just adjust the 
 	particles: {		  // paramaters/numbers to change it! Everything explained on the website/git
 		number: {
-			value: 30,
+			value: 45,
 		density: {
 			enable: true,
 			value_area: 800,
@@ -25,13 +27,15 @@ const particleOptions = { // This is the particle effects on the background, It 
 }
 }
 
-class App extends Component {
+class App extends Component { // This is where all the main states for the app are to be defined
 	constructor() { // When using the constructor, you have to use super() to be able to access it, otherwise it will return an error
 		super();	// Constructors allow you to set props that can be handed inside of functions and down to certain elements.
 		this.state = {
 			input: '',
 			imageUrl: '', // The image url state is being used as the source, to be able to display the image
-			box: []	// This constains the value's that we receive from the output, They are from the bounding_box we get below 
+			box: [],	// This constains the value's that we receive from the output, They are from the bounding_box we get below 
+			route: 'signin',  // This state keeps tracks of where we are in the app, and will adjust things accordingly! Such as not having the app open, until the user has signed into the app
+			isSignedIn: false
 		}
 	} 
 
@@ -45,7 +49,7 @@ calculateFaceLocation = (data) => {
 			topRow: clarifaiFace.top_row * height,
 			rightCol: width - (clarifaiFace.right_col * width),
 			bottomRow: height - (clarifaiFace.bottom_row * height)
-		};
+		}
 }
 
 displayFaceBox = (box) => {
@@ -68,15 +72,35 @@ helloThere = () => { // Button - I had problems getting the button name to work 
 
 // By using the arror functions, we are able to clean this up and make the code flow better making it easier to read. This is due to the constant updates of the language.
 
+onRouteChange = (route) => {
+	if (route === 'signout') {
+		this.setstate({isSignedIn: false})  
+	} else if (route === 'home') { 
+		this.setstate({isSignedIn: true})
+	}
+	this.setState({route: route}) // Must be wrapped inside curly brackets, as its an object. By setting it to 'home', it will send it to the default page
+}								   // Then you can adjust the different pages by going into the specific page, and on onRouteChange, just give it the page/app you want it to direct to.
+
+// When I first tested this, I had a memory leak! The error said that 'route' was defined too many times inside itself. This was changed by adding the arror functions to the onclick. See inside the files for notes.
+
 render() {
 	return (
 		<div className="App">
 			 <Particles className='Particles1' params={particleOptions}/> 
-			 <Navigation />
-			 <Logo />
-			 <Rank />
-			 <ImageLinkForm onInputChange={this.onInputChange} helloThere={this.helloThere}/> 
-		     <FaceRecognition box={this.state.box} imageUrl={this.state.imageUrl}/>
+			 <Navigation isSignedIn={this.state.isSignedIn} onRouteChange={this.onRouteChange} />
+			 { this.state.route === 'home' 
+			 ? <div>
+			 		<Logo />
+			 		<Rank />
+			 		<ImageLinkForm onInputChange={this.onInputChange} helloThere={this.helloThere}/> 
+		     		<FaceRecognition box={this.state.box} imageUrl={this.state.imageUrl}/>
+		       </div>
+		     : (
+		     	this.state.route === 'signin'
+		     	? <SignIn onRouteChange={this.onRouteChange}/> // The function on here is changing the route of where it directs the user once signed in
+		     	: <Register onRouteChange={this.onRouteChange}/>
+		     	)
+		    }
 		</div>
 	);
 }
@@ -100,6 +124,8 @@ export default App;
 // setState(updater, callback)
 
 // Read more information here https://reactjs.org/docs/react-component.html#setstate
+
+// To make one js Component display before the others, set it a state of 'route' like above, and then use a conditional statmemnt. Remembering to wrap it in a div.
 
 // For deployment of react apps, you will need to use the npm build comand in the console! As this will compile all the nesecary files and dependencies 
 // For the app to run, and it will do it in the most efficent way posisble!
