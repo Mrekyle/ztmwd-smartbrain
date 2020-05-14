@@ -53,7 +53,6 @@ calculateFaceLocation = (data) => {
 }
 
 displayFaceBox = (box) => {
-	console.log(box)
 	this.setState({box: box})
 }
 
@@ -74,9 +73,9 @@ helloThere = () => { // Button - I had problems getting the button name to work 
 
 onRouteChange = (route) => {
 	if (route === 'signout') {
-		this.setstate({isSignedIn: false})  
+		this.setState({isSignedIn: false})  
 	} else if (route === 'home') { 
-		this.setstate({isSignedIn: true})
+		this.setState({isSignedIn: true})
 	}
 	this.setState({route: route}) // Must be wrapped inside curly brackets, as its an object. By setting it to 'home', it will send it to the default page
 }								   // Then you can adjust the different pages by going into the specific page, and on onRouteChange, just give it the page/app you want it to direct to.
@@ -84,24 +83,25 @@ onRouteChange = (route) => {
 // When I first tested this, I had a memory leak! The error said that 'route' was defined too many times inside itself. This was changed by adding the arror functions to the onclick. See inside the files for notes.
 
 render() {
-	return (
-		<div className="App">
-			 <Particles className='Particles1' params={particleOptions}/> 
-			 <Navigation isSignedIn={this.state.isSignedIn} onRouteChange={this.onRouteChange} />
-			 { this.state.route === 'home' 
-			 ? <div>
-			 		<Logo />
-			 		<Rank />
-			 		<ImageLinkForm onInputChange={this.onInputChange} helloThere={this.helloThere}/> 
-		     		<FaceRecognition box={this.state.box} imageUrl={this.state.imageUrl}/>
-		       </div>
-		     : (
-		     	this.state.route === 'signin'
-		     	? <SignIn onRouteChange={this.onRouteChange}/> // The function on here is changing the route of where it directs the user once signed in
-		     	: <Register onRouteChange={this.onRouteChange}/>
-		     	)
-		    }
-		</div>
+	const { isSignedIn, route, box, imageUrl} = this.state;
+		return (
+			<div className="App">
+				 <Particles className='Particles1' params={particleOptions}/> 
+				 <Navigation isSignedIn={isSignedIn} onRouteChange={this.onRouteChange} />
+				 { route === 'home' 
+				 ? <div>
+				 		<Logo />
+				 		<Rank />
+				 		<ImageLinkForm onInputChange={this.onInputChange} helloThere={this.helloThere}/> 
+			     		<FaceRecognition box={box} imageUrl={imageUrl}/>
+			       </div>
+			     : (
+			     	this.state.route === 'signin'
+			     	? <SignIn onRouteChange={this.onRouteChange}/> // The function on here is changing the route of where it directs the user once signed in
+			     	: <Register onRouteChange={this.onRouteChange}/>
+			     	)
+			    }
+			</div>
 	);
 }
 }
