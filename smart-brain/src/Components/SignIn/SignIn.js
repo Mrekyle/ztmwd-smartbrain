@@ -27,9 +27,10 @@ onSubmitSignIn = () => {									// This is saying that when the submit button h
       })
     })
     .then(response => response.json())						// This statement is saying that if the response matches up with data from the database
-    .then(data => {											// continue and let them log in and continue using the application
-    	if (data === 'Success')								// If not, dont let them log in and use the application.
-    	this.props.onRouteChange('home');					// This is sending the user to the home page once the button has been clicked.
+    .then(user => {											          // continue and let them log in and continue using the application
+    	if (user.id)		                            // If not, dont let them log in and use the application.
+      this.props.loadUser(user)						
+    	this.props.onRouteChange('home');					  // This is sending the user to the home page once the button has been clicked.
     })
 }
 

@@ -1,19 +1,17 @@
-import React, { Component } from 'react';
+import React from 'react';
 
 
-class Rank extends Component {
-	render() {
+const Rank = ({name, entries}) => { 
 		return (
 			<div>
 				<div className='white f3'>
-					{'Kyle, Your current rank is....'}
+					{`${name} , your current entry count is...`}
 				</div>
 				<div className='white f1'>
-					{'#5'}
+					{entries}
 				</div>
 			</div>
 	);
-	}
 }
 
 export default Rank;

@@ -37,7 +37,7 @@ const dataBase = { 			// This is the basic way of creating a test user database 
 app.post('/signin', (req, res) => { // This is the basic way of creating a sign in form, checking the database for the user information! And if it matches
 	if (req.body.email === dataBase.users[0].email && 			// Any of the information it sends a success, If not it will throw an error. 
 		req.body.password === dataBase.users[0].password) {
-		res.json('Success');
+		res.json(dataBase.users[0]);
 	} else {
 		res.status(400).json('Error Logging In.'); 
 	}
@@ -48,7 +48,6 @@ app.post('/register', (req, res) => {
 	dataBase.users.push({
 		id: '125',
 		name: name,
-		password: password,
 		email: email,
 		entries: 0,
 		joined: new Date(),

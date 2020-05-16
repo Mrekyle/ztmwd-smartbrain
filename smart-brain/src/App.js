@@ -35,7 +35,14 @@ class App extends Component { // This is where all the main states for the app a
 			imageUrl: '', // The image url state is being used as the source, to be able to display the image
 			box: [],	// This constains the value's that we receive from the output, They are from the bounding_box we get below 
 			route: 'signin',  // This state keeps tracks of where we are in the app, and will adjust things accordingly! Such as not having the app open, until the user has signed into the app
-			isSignedIn: false
+			isSignedIn: false,
+			user: {
+				id: '',
+				name: '',
+				email: '',
+				entries: 0,
+				joined: '',
+			}
 		}
 	} 
 
@@ -44,6 +51,16 @@ class App extends Component { // This is where all the main states for the app a
 // 		.then(response => response.json())
 // 		.then(console.log);
 // }
+
+loadUser = (data) => {
+	this.setState({user: {
+		id: data.id,
+		name: data.name,
+		email: data.email,
+		entries: data.entries,
+		joined: data.joined,
+	}})
+}
 
 calculateFaceLocation = (data) => {
 	const clarifaiFace  = data.outputs[0].data.regions[0].region_info.bounding_box; // This is getting the required data from the output that we receive from the image
@@ -71,7 +88,22 @@ onInputChange = (event) => {
 helloThere = () => { // Button - I had problems getting the button name to work from the lesson, So i winged it! As from what I can tell, the example is now part of keywords.
 	this.setState({imageUrl: this.state.input});
 		app.models.predict(Clarifai.FACE_DETECT_MODEL, this.state.input) // In here, you can change what model is being detected by clarifai, by just changing the model according to what the api offers
-		.then(response => this.displayFaceBox(this.calculateFaceLocation(response))) // This will now call the above function, which will find the required data, and produce an output	
+		.then(response => {
+			if (response) {
+				fetch('http://localhost:3000/image', {
+					method: 'put',
+					headers: {'Content-Type': 'application/json'},
+					body: JSON.stringify({
+						id: this.state.user.id
+					})
+				}) 
+				.then(response => response.json())
+				.then(count => {
+					this.setState(Object.assign(this.state.user, { entries: count}))
+				})
+			}
+			this.displayFaceBox(this.calculateFaceLocation(response)) 	// This will now call the above function, which will find the required data, and produce an output	
+		})
 	 	.catch(err => console.log(err))						 		 // Here it will catch any errors and log it into the console
 }
 
@@ -97,14 +129,14 @@ render() {
 				 { route === 'home' 
 				 ? <div>
 				 		<Logo />
-				 		<Rank />
+				 		<Rank name={this.state.user.name} entries={this.state.user.entries} />
 				 		<ImageLinkForm onInputChange={this.onInputChange} helloThere={this.helloThere}/> 
 			     		<FaceRecognition box={box} imageUrl={imageUrl}/>
 			       </div>
 			     : (
 			     	this.state.route === 'signin'
-			     	? <SignIn onRouteChange={this.onRouteChange}/> // The function on here is changing the route of where it directs the user once signed in
-			     	: <Register onRouteChange={this.onRouteChange}/>
+			     	? <SignIn loadUser={this.loadUser} onRouteChange={this.onRouteChange}/> // The function on here is changing the route of where it directs the user once signed in
+			     	: <Register loadUser={this.loadUser} onRouteChange={this.onRouteChange}/>
 			     	)
 			    }
 			</div>
