@@ -2,6 +2,7 @@ const express = require('express');
 const bcrypt = require('bcrypt-nodejs');
 const cors = require('cors');
 const knex = require('knex');
+const pg = require('pg');
 
 const db = knex({
 	client: 'pg',  			// This is tell the knex package where the Database is living and how to log in. With knex, you will also have to install the 
@@ -30,42 +31,64 @@ app.get('/', (req, res) => {
 	res.send(dataBase.users);
 })
 
-const dataBase = { 			// This is the basic way of creating a test user database for a log in system! This is not how it is done once deployed 
-	users: [				// But it is perfect for testing purposes! 
-	{
-		id: '123',
-		name: 'Kyle',
-		password: 'chocolate',			// We never store information, such as a database of users in a varible. As it wont persist! Every time the server
-		email: 'kylechart@gmail.com',	// Starts, it will just run with what information that it has pre defined by the programmer! This is why we 
-		entries: 0,						// use databases to store this information.
-		joined: new Date(),
-	},
-	{
-		id: '124',
-		name: 'Taylor',
-		password: 'Truffles',
-		email: 'Taylort@gmail.com',
-		entries: 0,
-		joined: new Date(), // new Date() Will generate what ever date and time that the user was created. This is a way of getting the date of when somthing 
-	}						// Has happened, Like a new user being created 
-	]
-}
+// const dataBase = { 			// This is the basic way of creating a test user database for a log in system! This is not how it is done once deployed 
+// 	users: [				// But it is perfect for testing purposes! 
+// 	{
+// 		id: '123',
+// 		name: 'Kyle',
+// 		password: 'chocolate',			// We never store information, such as a database of users in a varible. As it wont persist! Every time the server
+// 		email: 'kylechart@gmail.com',	// Starts, it will just run with what information that it has pre defined by the programmer! This is why we 
+// 		entries: 0,						// use databases to store this information.
+// 		joined: new Date(),
+// 	},
+// 	{
+// 		id: '124',
+// 		name: 'Taylor',
+// 		password: 'Truffles',
+// 		email: 'Taylort@gmail.com',
+// 		entries: 0,
+// 		joined: new Date(), // new Date() Will generate what ever date and time that the user was created. This is a way of getting the date of when somthing 
+// 	}						// Has happened, Like a new user being created 
+// 	]
+// }
+
+// app.post('/signin', (req, res) => {
+// 	db.select('email', 'hash').from('login')
+// 	.where('email', '=', req.body.email)
+// 	.then(data => {
+// 		const isValid = bcrypt.compareSync(req.body.password, data[0].hash)
+// 		console.log(isValid)
+// 		if (isValid) { 
+// 			return db.select('*').from('users')
+// 			.where('email', '=', req.body.email)
+// 			.then(user => {
+// 				res.json(user[0])
+// 			})
+// 			.catch(err => res.status(400).json('Unable to get user.'))
+// 		}
+// 	})
+// 	.catch(err => res.status(400).json('Wrong Credentials.'))
+// })
 
 app.post('/signin', (req, res) => { // This is the basic way of creating a sign in form, checking the database for the user information! And if it matches
 	db.select('email', 'hash').from('login') 
 	.where('email', '=', req.body.email)	// This is checking if the emails given into the sigin paramater matches the one with the login
 	.then(data => {
 		const isValid = bcrypt.compareSync(req.body.password, data[0].hash);	// This if the email matches, it compares the hash to the password given, as only the server knows the true value
+		console.log(isValid)
 		if (isValid) {													// And if they match, then it logs in. If not it gives an error
 		return db.select('*').from('users').where('email', '=', req.body.email)
 		.then(user => {
 			res.json(user[0])
 		}) 
 		.catch(err => res.status(400).json('Unable to get user.'))
-		}	
+		} else {
+			res.status(400).json('Wrong Credentials');
+		}
 	})
 	.catch(err => res.status(400).json('Wrong Credentials.'))	
 })
+
 //		OLD CODE 
 // if (req.body.email === dataBase.users[0].email && 			// Any of the information it sends a success, If not it will throw an error. 
 // 		req.body.password === dataBase.users[0].password) {
