@@ -99,7 +99,7 @@ helloThere = () => { // Button - I had problems getting the button name to work 
 				}) 
 				.then(response => response.json())
 				.then(count => {
-					this.setState(Object.assign(this.state.user, { entries: count}))
+					this.setState(Object.assign(this.state.user.id, { entries: count}))
 				})
 			}
 			this.displayFaceBox(this.calculateFaceLocation(response)) 	// This will now call the above function, which will find the required data, and produce an output	

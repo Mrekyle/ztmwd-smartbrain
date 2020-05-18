@@ -52,42 +52,43 @@ app.get('/', (req, res) => {
 // 	]
 // }
 
-// app.post('/signin', (req, res) => {
-// 	db.select('email', 'hash').from('login')
-// 	.where('email', '=', req.body.email)
-// 	.then(data => {
-// 		const isValid = bcrypt.compareSync(req.body.password, data[0].hash)
-// 		console.log(isValid)
-// 		if (isValid) { 
-// 			return db.select('*').from('users')
-// 			.where('email', '=', req.body.email)
-// 			.then(user => {
-// 				res.json(user[0])
-// 			})
-// 			.catch(err => res.status(400).json('Unable to get user.'))
-// 		}
-// 	})
-// 	.catch(err => res.status(400).json('Wrong Credentials.'))
-// })
-
-app.post('/signin', (req, res) => { // This is the basic way of creating a sign in form, checking the database for the user information! And if it matches
-	db.select('email', 'hash').from('login') 
-	.where('email', '=', req.body.email)	// This is checking if the emails given into the sigin paramater matches the one with the login
+app.post('/signin', (req, res) => {
+	db.select('email', 'hash').from('login')
+	.where('email', '=', req.body.email)
 	.then(data => {
-		const isValid = bcrypt.compareSync(req.body.password, data[0].hash);	// This if the email matches, it compares the hash to the password given, as only the server knows the true value
-		console.log(isValid)
-		if (isValid) {													// And if they match, then it logs in. If not it gives an error
-		return db.select('*').from('users').where('email', '=', req.body.email)
-		.then(user => {
-			res.json(user[0])
-		}) 
-		.catch(err => res.status(400).json('Unable to get user.'))
-		} else {
-			res.status(400).json('Wrong Credentials');
+		const isValid = bcrypt.compareSync(req.body.password, data[0].hash)
+		if (isValid) { 
+			return db.select('*').from('users')
+			.where('email', '=', req.body.email)
+			.then(user => {
+				res.json(user[0])
+			})
+			.catch(err => res.status(400).json('Unable to get user.'))
+		}	else {
+				res.status(400).json('Email or Password doesnt match.');
 		}
 	})
-	.catch(err => res.status(400).json('Wrong Credentials.'))	
+	.catch(err => res.status(400).json('Wrong Credentials.'))
 })
+
+// app.post('/signin', (req, res) => { // This is the basic way of creating a sign in form, checking the database for the user information! And if it matches
+// 	db.select('email', 'hash').from('login') 
+// 	.where('email', '=', req.body.email)	// This is checking if the emails given into the sigin paramater matches the one with the login
+// 	.then(data => {
+// 		const isValid = bcrypt.compareSync(req.body.password, data[0].hash);	// This if the email matches, it compares the hash to the password given, as only the server knows the true value
+// 		console.log(isValid)
+// 		if (isValid) {													// And if they match, then it logs in. If not it gives an error
+// 		return db.select('*').from('users').where('email', '=', req.body.email)
+// 		.then(user => {
+// 			return res.json(user[0])
+// 		}) 
+// 		.catch(err => res.status(400).json('Unable to get user.'))
+// 		} else {
+// 			res.status(400).json('Wrong Credentials');
+// 		}
+// 	})
+// 	.catch(err => res.status(400).json('Wrong Credentials.'))	
+// })
 
 //		OLD CODE 
 // if (req.body.email === dataBase.users[0].email && 			// Any of the information it sends a success, If not it will throw an error. 
@@ -175,7 +176,7 @@ app.put('/image', (req, res) => {  				// This whole section of code here is fin
 // 	}
 
 app.listen(3000, () => {	// Always have this as the final code on the page!
-	console.log('Loud and clear Homie!'); // This is the basic way of knowing weather your server is actually working and responding to any requests that are made to it! 
+	console.log('Running on port 3000'); // This is the basic way of knowing weather your server is actually working and responding to any requests that are made to it! 
 });
 
 
